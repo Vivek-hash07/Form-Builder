@@ -1,11 +1,11 @@
-import { z } from "zod";
+import { email, z } from "zod";
 
-export const getAuthenticationMethodOutputSchema = z.object({
-  provider: z.enum(["GOOGLE_OAUTH"]),
-  displayName: z.string().optional(),
-  displayText: z.string().optional(),
-  authUrl: z.string(),
+export const createUserWithEmailAndPasswordInput = z.object({
+  fullName: z.string().describe("Full name of the User"),
+  email: z.email().describe("Email of the User"),
+  password: z.string().describe("Password of the User"),
 });
-export type GetAuthenticationMethodOutputSchema = z.infer<
-  typeof getAuthenticationMethodOutputSchema
+
+export type CreateUserWithEmailAndPasswordInputType = z.infer<
+  typeof createUserWithEmailAndPasswordInput
 >;
