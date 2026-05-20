@@ -1,6 +1,10 @@
+import { util } from "zod";
 import { trpc } from "~/trpc/client";
 
 export const useSignup = () => {
+
+  const utils = trpc.useUtils()
+
   const {
     mutateAsync: createUserWithEmailAndPasswordAsync,
     mutate: createUserWithEmailAndPassword,
@@ -9,7 +13,11 @@ export const useSignup = () => {
     isError,
     isSuccess,
     status,
-  } = trpc.auth.createUserWithEmailAndPassword.useMutation();
+  } = trpc.auth.createUserWithEmailAndPassword.useMutation({
+    onSuccess: async () => {
+      await utils.auth.getLoggedInUserInfo.invalidate()
+    }
+  });
 
   return {
     createUserWithEmailAndPasswordAsync,
@@ -23,6 +31,9 @@ export const useSignup = () => {
 };
 
 export const useSignIn = () => {
+
+  const utils = trpc.useUtils()
+
   const {
     mutateAsync: signInUserwithEmailAndPasswordAsync,
     mutate: signInUserwithEmailAndPassword,
@@ -31,7 +42,11 @@ export const useSignIn = () => {
     isError,
     isSuccess,
     status,
-  } = trpc.auth.signInUserwithEmailAndPassword.useMutation();
+  } = trpc.auth.signInUserwithEmailAndPassword.useMutation({
+    onSuccess: async () => {
+      await utils.auth.getLoggedInUserInfo.invalidate() // cache invalidation to update the logged in user info after successful sign in
+    }
+  });
 
   return {
     signInUserwithEmailAndPasswordAsync,
@@ -42,4 +57,9 @@ export const useSignIn = () => {
     isSuccess,
     status,
   };
+}
+
+export const useUser = () => {
+  const { data, isError, error, isSuccess, status} = trpc.auth.getLoggedInUserInfo.useMutation();
+  return { data, isError, error, isSuccess, status };
 }

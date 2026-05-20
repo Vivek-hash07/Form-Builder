@@ -7,8 +7,10 @@ import {
   createUserWithEmailAndPasswordOutputModel,
   signInWithEmailAndPasswordInputModel,
   signInWithEmailAndPasswordOutputModel,
+  verifyAndDecodeUserTokenInputModel,
+  verifyAndDecodeUserTokenOutputModel,
 } from "./model";
-import { setAuthenticationCookie } from "../../utils/cookie";
+import { getAuthenticationCookie, setAuthenticationCookie } from "../../utils/cookie";
 
 const TAGS = ["Authentication"];
 const getPath = generatePath("/authentication");
@@ -56,5 +58,24 @@ export const authRouter = router({
       })
       setAuthenticationCookie(ctx, token)
       return { id, token }
-    })
+    }),
+
+    getLoggedInUserInfo: publicProcedure
+    .meta({openapi: {
+        method: "POST",
+        path: getPath("/getLoggedInUserInfo"),
+        tags: TAGS,
+      }})
+      .input(verifyAndDecodeUserTokenInputModel)
+      .output(verifyAndDecodeUserTokenOutputModel)
+      .mutation(async ({ ctx }) => {
+        const userToken = getAuthenticationCookie(ctx);
+        if (!userToken) throw new Error("User is not LoggedIn");
+
+        const { id, email, fullname, profileURL: rawProfileURL } = await userService.verifyAndDecodeUserToken(userToken);
+        if (!id || !email || !fullname) throw new Error("Invalid user data");
+
+        const profileURL = rawProfileURL ?? undefined;
+        return { id, email, fullname, profileURL };
+      })
 });

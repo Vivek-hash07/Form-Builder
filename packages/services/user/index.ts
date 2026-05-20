@@ -26,6 +26,26 @@ class userService {
     return { token };
   }
 
+  private async verifyUserToken(token: string): Promise<GenerateUserTokenPayloadType>{
+    try{
+      const verifiedToken = jwt.verify(token, env.JWT_SECRET as string) as GenerateUserTokenPayloadType
+      return verifiedToken;
+    } catch (error) {
+      throw new Error("Invalid or expired token");
+    }
+  }
+
+  private async getUserInfoByID(id: string){
+    const user = await db.select({
+      id: usersTable.id,
+      email: usersTable.email,
+      fullname: usersTable.fullName,
+      profileURL: usersTable.profileImageUrl,
+    }).from(usersTable).where(eq(usersTable.id, id));
+    if (!user || user.length === 0) throw new Error(`User with this ID: ${id} does not exist`);
+    return user[0];
+  }
+
   public generateHash(salt: string, password: string){
     return createHmac("sha256", salt).update(password).digest("hex");
   }
@@ -79,6 +99,12 @@ class userService {
       id: existingUser.id,
       token
     }
+  }
+
+  public async verifyAndDecodeUserToken(token: string){
+    const { id } = await this.verifyUserToken(token);
+    const userInfo  = await this.getUserInfoByID(id);
+    return { ...userInfo };
   }
 }
 
