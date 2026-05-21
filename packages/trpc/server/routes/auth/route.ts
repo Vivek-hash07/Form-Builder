@@ -1,6 +1,6 @@
 import { set } from "zod";
 import { userService } from "../../services";
-import { publicProcedure, router } from "../../trpc";
+import { authenticationProcedure, publicProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
 import {
   createUserWithEmailAndPasswordInputModel,
@@ -60,7 +60,7 @@ export const authRouter = router({
       return { id, token }
     }),
 
-    getLoggedInUserInfo: publicProcedure
+    getLoggedInUserInfo: authenticationProcedure
     .meta({openapi: {
         method: "POST",
         path: getPath("/getLoggedInUserInfo"),
@@ -69,10 +69,13 @@ export const authRouter = router({
       .input(verifyAndDecodeUserTokenInputModel)
       .output(verifyAndDecodeUserTokenOutputModel)
       .mutation(async ({ ctx }) => {
-        const userToken = getAuthenticationCookie(ctx);
-        if (!userToken) throw new Error("User is not LoggedIn");
+        const userId = ctx.user?.id;
+        if (!userId) throw new Error("No user id available");
 
-        const { id, email, fullname, profileURL: rawProfileURL } = await userService.verifyAndDecodeUserToken(userToken);
+        const user = await userService.getUserInfoByID(userId);
+        if (!user) throw new Error("User not found");
+
+        const { id, email, fullname, profileURL: rawProfileURL } = user;
         if (!id || !email || !fullname) throw new Error("Invalid user data");
 
         const profileURL = rawProfileURL ?? undefined;
