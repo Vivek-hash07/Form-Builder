@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react"
+import { useRouter } from 'next/navigation'
 import { cn } from "~/lib/utils"
 import { Button } from "~/components/ui/button"
 import {
@@ -24,6 +25,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter()
   const { signInUserwithEmailAndPasswordAsync } = useSignIn()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -32,6 +34,7 @@ export function LoginForm({
     event.preventDefault()
 
     const {id } = await signInUserwithEmailAndPasswordAsync({ email, password })
+    router.replace('/dashboard')
 
     console.log(`User logged In Successfully with ID: ${id}`);
     

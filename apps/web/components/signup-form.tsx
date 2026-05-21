@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
+import { useRouter } from 'next/navigation'
 import {
   Field,
   FieldDescription,
@@ -22,6 +23,7 @@ type SignupFormValues = {
 };
 
 export function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
+  const router = useRouter()
   const { createUserWithEmailAndPasswordAsync } = useSignup();
   const { register, handleSubmit } = useForm<SignupFormValues>({
     defaultValues: {
@@ -40,6 +42,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
       password: values.password,
     });
     console.log(`User created successfully with the ID ${id}`);
+    router.replace('/dashboard');
   };
 
   return (
