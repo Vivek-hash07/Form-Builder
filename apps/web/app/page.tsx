@@ -1,10 +1,11 @@
-import { api } from "~/trpc/server";
-import { useRouter } from 'next/navigation';
-import { useUser } from "~/hooks/api/auth";
-import { useEffect } from "react";
+"use client"
 
-export default async function Home() {
-  const { user } = useUser()
+import { useRouter } from 'next/navigation'
+import { useUser } from "~/hooks/api/auth"
+import { useEffect } from "react"
+
+export default function Home() {
+  const { data: user } = useUser()
   const router = useRouter()
 
   useEffect(() => {
