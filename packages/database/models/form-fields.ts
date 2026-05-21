@@ -7,7 +7,7 @@ export const forTypeEnum = pgEnum('form_type_enum', ['TEXT','NUMBER','EMAIL','YE
 export const formsFieldsTable = pgTable('forms_fields',{
     id: uuid("id").primaryKey().defaultRandom(),
 
-    label: text('label', {length: 255}).notNull(),
+    label: varchar('label', {length: 255}).notNull(),
     labelKey: varchar('label_key', {length: 255}).notNull(),
 
     description: text('description'),
