@@ -275,3 +275,25 @@ export const useDeleteField = () => {
     isPending,
   };
 };
+
+export const useGetFormByFormId = (formId: string) => {
+  const {
+    data,
+    isError,
+    error,
+    isSuccess,
+    status,
+    isLoading,
+    refetch,
+  } = trpc.formFields.getFormByFormId.useQuery({ formId });
+
+  return {
+    data,
+    isError,
+    error,
+    isSuccess,
+    status,
+    isLoading,
+    refetch,
+  };
+};

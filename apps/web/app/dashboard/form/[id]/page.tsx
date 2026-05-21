@@ -19,7 +19,8 @@ import {
   Info,
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Share2
 } from "lucide-react";
 
 import { AppSidebar } from "~/components/app-sidebar";
@@ -78,6 +79,15 @@ export default function FormBuilderPage() {
   const [previewValues, setPreviewValues] = useState<Record<string, any>>({});
   const [previewErrors, setPreviewErrors] = useState<Record<string, string>>({});
   const [previewSubmitted, setPreviewSubmitted] = useState(false);
+
+  // Copy shareable public link to clipboard
+  const handleCopyShareLink = () => {
+    const publicUrl = `${window.location.origin}/form/${formId}`;
+    navigator.clipboard.writeText(publicUrl);
+    toast.success("Public sharing link copied to clipboard!", {
+      description: "Send this link to anyone to fill out your form.",
+    });
+  };
 
   // Queries
   const { data: form, isLoading: formLoading, isError: formError, refetch: refetchForm } = useGetFormById(formId);
@@ -316,6 +326,16 @@ export default function FormBuilderPage() {
             </div>
 
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5 shadow-xs border-indigo-100 hover:border-indigo-300 bg-indigo-50/50 hover:bg-indigo-50 text-indigo-700 font-semibold"
+                onClick={handleCopyShareLink}
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                Share Form
+              </Button>
+
               <Dialog open={editDetailsOpen} onOpenChange={setEditDetailsOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="h-9 gap-1.5 shadow-xs border-slate-200">
@@ -385,6 +405,10 @@ export default function FormBuilderPage() {
                   <p className="text-slate-500 text-sm md:text-base max-w-3xl leading-relaxed">
                     {form.description || "Customize your form. Add inputs, set parameters, and preview structural validation instantly."}
                   </p>
+                  <div className="flex items-center gap-1.5 mt-2 bg-indigo-50/40 dark:bg-indigo-950/10 border border-indigo-100/60 dark:border-indigo-900/30 px-3 py-1.5 rounded-md w-fit text-[11px] font-medium text-indigo-700 dark:text-indigo-400">
+                    <Info className="h-3.5 w-3.5 shrink-0" />
+                    <span>To collect submissions, use the <strong className="font-bold">Share Form</strong> button above to copy the correct public respondent URL.</span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-400 font-medium bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
                   <Calendar className="h-3.5 w-3.5 text-slate-400" />

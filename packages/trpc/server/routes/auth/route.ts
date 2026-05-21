@@ -62,13 +62,13 @@ export const authRouter = router({
 
     getLoggedInUserInfo: authenticationProcedure
     .meta({openapi: {
-        method: "POST",
+        method: "GET",
         path: getPath("/getLoggedInUserInfo"),
         tags: TAGS,
       }})
       .input(verifyAndDecodeUserTokenInputModel)
       .output(verifyAndDecodeUserTokenOutputModel)
-      .mutation(async ({ ctx }) => {
+      .query(async ({ ctx }) => {
         const userId = ctx.user?.id;
         if (!userId) throw new Error("No user id available");
 

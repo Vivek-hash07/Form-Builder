@@ -53,6 +53,20 @@ export const fieldOutput = z.object({
 export const listFieldsOutput = z.array(fieldOutput);
 export const deleteFieldOutput = z.object({ id: z.string().uuid() });
 
+export const getFormByFormIdInput = z.object({
+  formId: z.string().uuid(),
+});
+
+export const publicFormOutput = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  description: z.string().nullable(),
+  createdBy: z.string().uuid().nullable(),
+  createdAt: z.string().nullable(),
+  updatedAt: z.string().nullable(),
+  fields: z.array(fieldOutput),
+});
+
 export type CreateFieldInputType = z.infer<typeof createFieldInput>;
 export type UpdateFieldInputType = z.infer<typeof updateFieldInput>;
 export type GetFieldByIdInputType = z.infer<typeof getFieldByIdInput>;
@@ -61,3 +75,5 @@ export type DeleteFieldInputType = z.infer<typeof deleteFieldInput>;
 export type FieldOutputType = z.infer<typeof fieldOutput>;
 export type ListFieldsOutputType = z.infer<typeof listFieldsOutput>;
 export type DeleteFieldOutputType = z.infer<typeof deleteFieldOutput>;
+export type GetFormByFormIdInputType = z.infer<typeof getFormByFormIdInput>;
+export type PublicFormOutputType = z.infer<typeof publicFormOutput>;

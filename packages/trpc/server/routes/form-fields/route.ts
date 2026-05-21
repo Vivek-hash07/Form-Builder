@@ -1,5 +1,5 @@
-import { authenticationProcedure, router } from "../../trpc";
-import { formFieldService } from "../../services";
+import { authenticationProcedure, publicProcedure, router } from "../../trpc";
+import { formFieldService, formService } from "../../services";
 import { generatePath } from "../../utils/path-generator";
 import {
   createFieldInput,
@@ -10,6 +10,8 @@ import {
   fieldOutput,
   listFieldsOutput,
   deleteFieldOutput,
+  getFormByFormIdInput,
+  publicFormOutput,
 } from "./model";
 
 const TAGS = ["FormFields"];
@@ -45,7 +47,7 @@ export const formFieldsRouter = router({
       return fields.map(normalizeField);
     }),
 
-  getFieldById: authenticationProcedure
+  getFieldById: authenticationProcedure //This must be should be public
     .meta({
       openapi: {
         method: "GET",
@@ -107,5 +109,31 @@ export const formFieldsRouter = router({
       const deleted = await formFieldService.deleteField(input);
       if (!deleted) throw new Error("Unable to delete field");
       return deleted;
+    }),
+
+  getFormByFormId: publicProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: getPath("/getFormByFormId"),
+        tags: TAGS,
+      },
+    })
+    .input(getFormByFormIdInput)
+    .output(publicFormOutput)
+    .query(async ({ input }) => {
+      const data = await formService.getFormWithFields(input.formId);
+      if (!data) {
+        throw new Error("Form not found");
+      }
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description ?? null,
+        createdBy: data.createdBy ?? null,
+        createdAt: data.createdAt?.toISOString() ?? null,
+        updatedAt: data.updatedAt?.toISOString() ?? null,
+        fields: data.fields.map(normalizeField),
+      };
     }),
 });

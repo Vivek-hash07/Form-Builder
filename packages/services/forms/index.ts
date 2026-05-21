@@ -1,5 +1,6 @@
 import { db, eq } from "@repo/database"
 import { formsTable } from "@repo/database/models/form"
+import { formsFieldsTable } from "@repo/database/models/form-fields"
 import {
   CreateFormInputType,
   UpdateFormInputType,
@@ -16,6 +17,29 @@ class FormService {
 
     if (!result || result.length === 0) return null
     return result[0]
+  }
+
+  public async getFormWithFields(formId: string) {
+    const result = await db
+      .select()
+      .from(formsTable)
+      .leftJoin(formsFieldsTable, eq(formsFieldsTable.formID, formsTable.id))
+      .where(eq(formsTable.id, formId))
+
+    if (!result || result.length === 0) return null
+
+    const firstRow = result[0]
+    if (!firstRow) return null
+
+    const form = firstRow.forms
+    const fields = result
+      .map(row => row.forms_fields)
+      .filter((field): field is NonNullable<typeof field> => field !== null)
+
+    return {
+      ...form,
+      fields,
+    }
   }
 
   public async listFormsByUser(userId: string) {
