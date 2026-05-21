@@ -1,7 +1,7 @@
 import { router } from "./trpc";
 
 import { authRouter } from "./routes/auth/route";
-import {} from "./routes/forms/route";
+import { formsRouter } from "./routes/forms/route";
 
 export const serverRouter = router({
   auth: authRouter,
