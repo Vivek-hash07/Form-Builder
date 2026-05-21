@@ -297,3 +297,27 @@ export const useGetFormByFormId = (formId: string) => {
     refetch,
   };
 };
+
+export const useSubmitFormResponse = () => {
+  const {
+    mutateAsync: submitFormAsync,
+    mutate: submitForm,
+    failureCount,
+    error,
+    isError,
+    isSuccess,
+    status,
+    isPending,
+  } = trpc.formSubmissions.submitForm.useMutation();
+
+  return {
+    submitFormAsync,
+    submitForm,
+    failureCount,
+    error,
+    isError,
+    isSuccess,
+    status,
+    isPending,
+  };
+};

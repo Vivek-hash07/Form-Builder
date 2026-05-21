@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { useGetFormByFormId } from "~/hooks/api/forms";
+import { useGetFormByFormId, useSubmitFormResponse } from "~/hooks/api/forms";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -16,6 +16,7 @@ export default function PublicFormPage() {
   const formId = params.form_id as string;
 
   const { data: form, isLoading, isError } = useGetFormByFormId(formId);
+  const { submitFormAsync, isPending: submitPending } = useSubmitFormResponse();
 
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -59,7 +60,7 @@ export default function PublicFormPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -79,8 +80,22 @@ export default function PublicFormPage() {
       toast.error("Please fill in all required fields correctly.");
     } else {
       setErrors({});
-      setSubmitted(true);
-      toast.success("Response submitted successfully!");
+      try {
+        const submissionPayload = Object.entries(values).map(([fieldId, val]) => ({
+          formField: fieldId,
+          value: typeof val === "object" ? JSON.stringify(val) : String(val),
+        }));
+
+        await submitFormAsync({
+          formId,
+          value: submissionPayload,
+        });
+
+        setSubmitted(true);
+        toast.success("Response submitted successfully!");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to submit form response. Please try again.");
+      }
     }
   };
 
@@ -212,10 +227,10 @@ export default function PublicFormPage() {
 
             <Button
               type="submit"
-              disabled={sortedFields.length === 0}
+              disabled={sortedFields.length === 0 || submitPending}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 gap-2 shadow-md mt-4 transition-colors shrink-0"
             >
-              Submit Form Response
+              {submitPending ? "Submitting response..." : "Submit Form Response"}
               <Send className="h-4 w-4" />
             </Button>
           </form>
