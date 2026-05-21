@@ -14,6 +14,19 @@ import {
 const TAGS = ["Forms"];
 const getPath = generatePath("/forms");
 
+const normalizeForm = (form: {
+  id: string;
+  title: string;
+  description: string | null;
+  createdBy: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}) => ({
+  ...form,
+  createdAt: form.createdAt?.toISOString() ?? null,
+  updatedAt: form.updatedAt?.toISOString() ?? null,
+});
+
 export const formsRouter = router({
   listUserForms: authenticationProcedure
     .meta({
@@ -27,7 +40,8 @@ export const formsRouter = router({
     .query(async ({ ctx }) => {
       const userId = ctx.user?.id;
       if (!userId) throw new Error("User is not authenticated");
-      return await formService.listFormsByUser(userId);
+      const forms = await formService.listFormsByUser(userId);
+      return forms.map(normalizeForm);
     }),
 
   getFormById: authenticationProcedure
@@ -43,20 +57,11 @@ export const formsRouter = router({
     .query(async ({ input }) => {
       const form = await formService.getFormById(input.id);
       if (!form) throw new Error("Form not found");
-      return form;
-    }),
-    .meta({
-      openapi: {
-        method: "GET",
-        path: getPath("/getFormById"),
-        tags: TAGS,
-      },
-    })
-    .input(getFormByIdInput)
-    .query(async ({ input }) => {
-      const form = await formService.getFormById(input.id);
-      if (!form) throw new Error("Form not found");
-      return form;
+      return {
+        ...form,
+        createdAt: form.createdAt?.toISOString() ?? null,
+        updatedAt: form.updatedAt?.toISOString() ?? null,
+      };
     }),
 
   createForm: authenticationProcedure
@@ -72,10 +77,19 @@ export const formsRouter = router({
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       if (!userId) throw new Error("User is not authenticated");
-      return await formService.createForm({
+      const form = await formService.createForm({
         ...input,
         createdBy: userId,
       });
+      if (!form) throw new Error("Failed to create form");
+      return {
+        id: form.id!,
+        title: form.title!,
+        description: form.description ?? null,
+        createdBy: form.createdBy ?? null,
+        createdAt: form.createdAt?.toISOString() ?? null,
+        updatedAt: form.updatedAt?.toISOString() ?? null,
+      };
     }),
 
   updateForm: authenticationProcedure
@@ -89,7 +103,16 @@ export const formsRouter = router({
     .input(updateFormInput)
     .output(formOutput)
     .mutation(async ({ input }) => {
-      return await formService.updateForm(input);
+      const form = await formService.updateForm(input);
+      if (!form) throw new Error("Failed to update form");
+      return {
+        id: form.id!,
+        title: form.title!,
+        description: form.description ?? null,
+        createdBy: form.createdBy ?? null,
+        createdAt: form.createdAt?.toISOString() ?? null,
+        updatedAt: form.updatedAt?.toISOString() ?? null,
+      };
     }),
 
   deleteForm: authenticationProcedure
@@ -103,6 +126,8 @@ export const formsRouter = router({
     .input(deleteFormInput)
     .output(deleteFormOutput)
     .mutation(async ({ input }) => {
-      return await formService.deleteForm(input.id);
+      const deleted = await formService.deleteForm(input.id);
+      if (!deleted) throw new Error("Form not found");
+      return deleted;
     }),
 });

@@ -23,9 +23,9 @@ export const formOutput = z.object({
   id: z.string().uuid(),
   title: z.string(),
   description: z.string().nullable(),
-  createdBy: z.string().uuid(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdBy: z.string().uuid().nullable(),
+  createdAt: z.string().nullable(),
+  updatedAt: z.string().nullable(),
 });
 
 export const listFormsOutput = z.array(formOutput);

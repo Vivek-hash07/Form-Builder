@@ -1,5 +1,5 @@
 import type { CookieOptions, Response, Request} from 'express'
-import type { TRPCContext } from '../trpc'
+import type { TRPCContext } from '../context'
 
 const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
