@@ -25,6 +25,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { useCreateForm } from "~/hooks/api/forms";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const createFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
@@ -35,6 +36,7 @@ type CreateFormValues = z.infer<typeof createFormSchema>;
 
 export function CreateFormModal() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const { createFormAsync, isPending, isError, error } = useCreateForm();
 
   const form = useForm<CreateFormValues>({
@@ -47,9 +49,12 @@ export function CreateFormModal() {
 
   const onSubmit = async (values: CreateFormValues) => {
     try {
-      await createFormAsync(values);
+      const newForm = await createFormAsync(values);
       form.reset();
       setOpen(false);
+      if (newForm?.id) {
+        router.push(`/dashboard/form/${newForm.id}`);
+      }
     } catch (err) {
       console.error("Failed to create form:", err);
     }

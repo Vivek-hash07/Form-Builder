@@ -60,6 +60,6 @@ export const useSignIn = () => {
 }
 
 export const useUser = () => {
-  const { data, isError, error, isSuccess, status} = trpc.auth.getLoggedInUserInfo.useMutation();
+  const { data, isError, error, isSuccess, status } = trpc.auth.getLoggedInUserInfo.useMutation();
   return { data, isError, error, isSuccess, status };
 }

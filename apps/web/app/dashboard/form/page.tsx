@@ -10,6 +10,7 @@ import { CreateFormModal } from "~/components/create-form-modal"
 import { useListUserForms } from "~/hooks/api/forms"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { Spinner } from "~/components/ui/spinner"
+import Link from "next/link"
 
 export default function FormPage() {
   const { data: forms, isLoading, isError } = useListUserForms()
@@ -35,7 +36,7 @@ export default function FormPage() {
                   <CreateFormModal />
                 </div>
               </div>
-              
+
               <div className="px-4 lg:px-6">
                 {isLoading ? (
                   <div className="flex justify-center py-8">
@@ -59,19 +60,21 @@ export default function FormPage() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {forms.map((form) => (
-                      <Card key={form.id} className="cursor-pointer hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                          <CardTitle className="line-clamp-2">{form.title}</CardTitle>
-                          <CardDescription className="line-clamp-2">
-                            {form.description || "No description"}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-xs text-gray-500">
-                            Created {new Date(form.createdAt).toLocaleDateString()}
-                          </p>
-                        </CardContent>
-                      </Card>
+                      <Link key={form.id} href={`/dashboard/form/${form.id}`}>
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full">
+                          <CardHeader>
+                            <CardTitle className="line-clamp-2">{form.title}</CardTitle>
+                            <CardDescription className="line-clamp-2">
+                              {form.description || "No description"}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-xs text-gray-500">
+                              Created {form.createdAt ? new Date(form.createdAt).toLocaleDateString() : "N/A"}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </Link>
                     ))}
                   </div>
                 )}
