@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: ["./src/index.ts"],
-  noExternal: ["@teachyst"], // transpile packages starting with `@teachyst` and their dependencies
+  noExternal: [/^@repo\/.*/], // bundle all internal @repo/ packages so the build is self-contained
   splitting: false,
   bundle: true,
   outDir: "./dist",
