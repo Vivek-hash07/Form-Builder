@@ -321,3 +321,26 @@ export const useSubmitFormResponse = () => {
     isPending,
   };
 };
+
+export const useListSubmissionsByForm = (formId: string) => {
+  const {
+    data,
+    isError,
+    error,
+    isSuccess,
+    status,
+    isLoading,
+    refetch,
+  } = trpc.formSubmissions.listSubmissionsByForm.useQuery({ formId });
+
+  return {
+    data,
+    isError,
+    error,
+    isSuccess,
+    status,
+    isLoading,
+    refetch,
+  };
+};
+

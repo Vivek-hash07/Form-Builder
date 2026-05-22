@@ -20,7 +20,8 @@ import {
   Calendar,
   Layers,
   ArrowRight,
-  Share2
+  Share2,
+  Table
 } from "lucide-react";
 
 import { AppSidebar } from "~/components/app-sidebar";
@@ -326,6 +327,16 @@ export default function FormBuilderPage() {
             </div>
 
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5 shadow-xs border-indigo-100 hover:border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 text-indigo-600 font-semibold"
+                onClick={() => router.push(`/dashboard/form/${formId}/submissions`)}
+              >
+                <Table className="h-3.5 w-3.5" />
+                View Submissions
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"

@@ -1,5 +1,5 @@
 import { authenticationProcedure, publicProcedure, router } from "../../trpc";
-import { formSubmissionService } from "../../services";
+import { formSubmissionService, formService } from "../../services";
 import { generatePath } from "../../utils/path-generator";
 import { createSubmissionInput, submissionOutput } from "./model";
 import { z } from "zod";
@@ -39,7 +39,21 @@ export const formSubmissionsRouter = router({
     })
     .input(z.object({ formId: z.string().uuid() }))
     .output(z.array(submissionOutput))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      if (!userId) {
+        throw new Error("User is not authenticated");
+      }
+
+      const form = await formService.getFormById(input.formId);
+      if (!form) {
+        throw new Error("Form not found");
+      }
+
+      if (form.createdBy !== userId) {
+        throw new Error("You are not authorized to view submissions for this form");
+      }
+
       const submissions = await formSubmissionService.listSubmissionsByForm(input.formId);
       return submissions.map((submission) => ({
         id: submission.id,
@@ -50,3 +64,4 @@ export const formSubmissionsRouter = router({
       }));
     }),
 });
+

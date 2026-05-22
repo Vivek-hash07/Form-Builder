@@ -1,26 +1,31 @@
 "use client";
 
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useGetFormByFormId, useSubmitFormResponse } from "~/hooks/api/forms";
+import { useUser } from "~/hooks/api/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Spinner } from "~/components/ui/spinner";
 import { Badge } from "~/components/ui/badge";
-import { AlertCircle, CheckCircle2, FileText, Send, Sparkles } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileText, Send, Sparkles, Table } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PublicFormPage() {
   const params = useParams();
+  const router = useRouter();
   const formId = params.form_id as string;
 
   const { data: form, isLoading, isError } = useGetFormByFormId(formId);
   const { submitFormAsync, isPending: submitPending } = useSubmitFormResponse();
+  const { data: user } = useUser();
 
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+
+  const isCreator = form && user && form.createdBy === user.id;
 
   if (isLoading) {
     return (
@@ -110,9 +115,6 @@ export default function PublicFormPage() {
           <CardDescription className="mt-2 text-slate-500">
             Thank you for your response to <strong>{form.title}</strong>.
           </CardDescription>
-          <div className="mt-6 p-4 rounded-lg bg-slate-50 border border-slate-100 text-left font-mono text-xs text-slate-600 overflow-x-auto max-h-48">
-            <pre>{JSON.stringify(values, null, 2)}</pre>
-          </div>
           <Button
             onClick={() => {
               setValues({});
